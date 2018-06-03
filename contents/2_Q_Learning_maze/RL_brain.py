@@ -22,8 +22,12 @@ class QLearningTable:
         # action selection
         if np.random.uniform() < self.epsilon:
             # choose best action
+            #state_action = self.q_table.ix[observation, :]
             state_action = self.q_table.loc[observation, :]
+
+            # same value will always stick in first item, so we permute to obscure the order (having same value)
             state_action = state_action.reindex(np.random.permutation(state_action.index))     # some actions have same value
+            # TODO: action = state_action.argmax()
             action = state_action.idxmax()
         else:
             # choose random action
@@ -31,15 +35,18 @@ class QLearningTable:
         return action
 
     def learn(self, s, a, r, s_):
+        # check `next` state in q-table ?
         self.check_state_exist(s_)
         q_predict = self.q_table.loc[s, a]
         if s_ != 'terminal':
             q_target = r + self.gamma * self.q_table.loc[s_, :].max()  # next state is not terminal
         else:
             q_target = r  # next state is terminal
+        #ix ?
         self.q_table.loc[s, a] += self.lr * (q_target - q_predict)  # update
 
     def check_state_exist(self, state):
+        # add if not exists
         if state not in self.q_table.index:
             # append new state to q table
             self.q_table = self.q_table.append(
