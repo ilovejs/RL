@@ -18,8 +18,11 @@ def run_maze():
             # RL take action and get next observation and reward
             observation_, reward, done = env.step(action)
 
+            # save memory
             RL.store_transition(observation, action, reward, observation_)
 
+            # learn after 200 steps, since `memory bank` has not been built.
+            # also, learn every 5 steps
             if (step > 200) and (step % 5 == 0):
                 RL.learn()
 
